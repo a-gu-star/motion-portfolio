@@ -374,7 +374,7 @@ function Hero() {
         <div className="hero-title">
           <h1><span>MOTION</span><span>DESIGNER</span></h1>
           <a href="#works">走进我的创作世界 <b><ArrowIcon direction="up"/></b></a>
-          <div className="hero-profile"><h2>卫丰鑫</h2><b>动态设计师 / 视频设计师</b><p>7年商业项目设计经验<br/>二维动态设计 / 动态分镜 / 品牌内容 / 后期制作 / 创意构思</p></div>
+          <div className="hero-profile"><h2>卫丰鑫</h2><b>资深动态设计师 / 视频设计师</b><p>7年商业项目设计经验<br/>专注品牌动态视觉、创意视频与 Motion Graphics</p></div>
         </div>
         <div className="hero-monogram">A.GU<br/>PERSONAL<br/>PORTFOLIO</div>
         <div className="hero-smile" aria-label="笑脸标志"><span><i/><i/><b/></span></div>
@@ -452,7 +452,7 @@ function Cavalry(){ return <section id="cavalry" className="section cavalry"><Se
 function About(){return <section id="about" className="section about"><SectionTitle index="04" en="WORK EXPERIENCE" cn="个人履历"/>
   <div className="about-top">
     <figure className="portrait"><img src={A+'portrait.webp'} alt="个人形象" loading="lazy" decoding="async"/></figure>
-    <div className="bio"><small>ABOUT ME</small><h3>1800线设计女工</h3><p>7年商业项目经验，专注动态设计、视频设计与二维动画。参与从创意、分镜到后期整合的完整流程，让每个镜头表达得更准确。</p>
+    <div className="bio"><small>ABOUT ME</small><h3>资深动态设计师</h3><p>7年商业项目设计经验<br/>专注品牌动态视觉、创意视频与 Motion Graphics</p>
       <div className="facts"><div><span>工作经历</span><b>北京华韬文化传媒</b><small className="fact-detail">动态设计师&nbsp;&nbsp;｜&nbsp;&nbsp;2019–2022 /&nbsp;&nbsp;导演 / 项目经理&nbsp;&nbsp;｜&nbsp;&nbsp;2022–至今</small></div><div><span>服务品牌</span><b>快手 / 京东 / 小米 / 361° / 特步 / 微软小冰 / 人民日报 / 艾美特 /</b></div><div><span>软件能力</span><b>AE / AI / Cavalry（学习中）/ Ps / Pr</b></div><div><span>毕业院校</span><b>郑州轻工业 · 数媒专业</b></div><div><span>手机</span><a href="tel:15935755356">159 3575 5356</a></div><div><span>邮箱</span><a href="mailto:3072497615@qq.com">3072497615@qq.com</a></div></div>
     </div>
   </div>
