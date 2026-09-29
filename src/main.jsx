@@ -311,6 +311,31 @@ function Header() {
   </header>
 }
 
+function ArrowIcon({direction='up', className=''}) {
+  return <svg className={`vector-arrow vector-arrow-${direction} ${className}`.trim()} viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M5 19L19 5M8 5h11v11" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+  </svg>
+}
+
+function LazyLoopVideo({src, poster, className='', ariaLabel}) {
+  const ref=useRef(null)
+  const [loaded,setLoaded]=useState(false)
+  useEffect(()=>{
+    const el=ref.current
+    if(!el)return
+    if(!('IntersectionObserver' in window)){setLoaded(true);return}
+    const observer=new IntersectionObserver(entries=>{
+      entries.forEach(entry=>{
+        if(entry.isIntersecting){setLoaded(true);requestAnimationFrame(()=>el.play().catch(()=>{}))}
+        else el.pause()
+      })
+    },{rootMargin:'280px 0px',threshold:.01})
+    observer.observe(el)
+    return()=>observer.disconnect()
+  },[])
+  return <video ref={ref} className={className} src={loaded?src:undefined} poster={poster} aria-label={ariaLabel} muted loop playsInline autoPlay={loaded} preload={loaded?'metadata':'none'}/>
+}
+
 function Hero() {
   const hero = useRef(null), video = useRef(null)
   const targetTime = useRef(0), currentTime = useRef(0), pointerActive = useRef(false), raf = useRef()
@@ -343,12 +368,12 @@ function Hero() {
   }, [])
   return <section id="top" className="hero-scroll" ref={hero}>
     <div className="hero-sticky">
-      <div className="hero-video"><video ref={video} src={A+'hero.mp4'} muted playsInline preload="auto"/></div>
+      <div className="hero-video"><img className="hero-poster" src={A+'hero-poster.jpg'} alt="" fetchPriority="high"/><video ref={video} src={A+'hero.mp4'} poster={A+'hero-poster.jpg'} muted playsInline preload="metadata"/></div>
       <div className="hero-shade"/>
       <div className="hero-grid">
         <div className="hero-title">
           <h1><span>MOTION</span><span>DESIGNER</span></h1>
-          <a href="#works">走进我的创作世界 <b>↗</b></a>
+          <a href="#works">走进我的创作世界 <b><ArrowIcon direction="up"/></b></a>
           <div className="hero-profile"><h2>卫丰鑫</h2><b>动态设计师 / 视频设计师</b><p>7年商业项目设计经验<br/>二维动态设计 / 动态分镜 / 品牌内容 / 后期制作 / 创意构思</p></div>
         </div>
         <div className="hero-monogram">A.GU<br/>PERSONAL<br/>PORTFOLIO</div>
@@ -358,7 +383,7 @@ function Hero() {
   </section>
 }
 
-function SectionTitle({index, en, cn}) { return <div className="section-title"><span>{index}</span><div><h2>{en} <i>↘</i></h2><p>{cn}</p></div></div> }
+function SectionTitle({index, en, cn}) { return <div className="section-title"><span>{index}</span><div><h2>{en} <ArrowIcon direction="down"/></h2><p>{cn}</p></div></div> }
 
 function Showreel(){
   const v=useRef(null)
@@ -388,7 +413,7 @@ function Works(){
     <div className="work-sections">{groups.map((section,sectionIndex)=><section className="work-group" key={section.id}>
       <div className="work-head"><div><small>0{sectionIndex+1}</small><h3>{section.title}</h3></div><p>{section.items.length} PROJECTS / {section.id==='training'?'自动循环播放':'点击卡片查看详情'}</p></div>
       <div className="work-grid" style={{'--accent':section.color}}>{section.items.map((it,i)=>{
-        const content=<><span className="project-no">{String(i+1).padStart(2,'0')}</span><div className="project-cover">{section.id==='twoD'?<img src={`${A}${it[4]}`} alt=""/>:<video src={`./${it[3]}`} poster={`${A}${it[4]}`} muted autoPlay loop playsInline preload="auto" onCanPlay={e=>e.currentTarget.play().catch(()=>{})}/>}</div><div className="project-type">{it[2]}</div><h4>{it[0]}</h4>{section.id!=='training'&&<><small className="project-click-hint">详细项目内容点击观看</small><i>↗</i></>}</>
+        const content=<><span className="project-no">{String(i+1).padStart(2,'0')}</span><div className="project-cover">{section.id==='twoD'?<img src={`${A}${it[4]}`} alt="" loading="lazy" decoding="async"/>:<LazyLoopVideo src={`./${it[3]}`} poster={`${A}${it[4]}`} ariaLabel={it[0]}/>}</div><div className="project-type">{it[2]}</div><h4>{it[0]}</h4>{section.id!=='training'&&<><small className="project-click-hint">详细项目内容点击观看</small><i><ArrowIcon direction="up"/></i></>}</>
         return section.id==='training'
           ? <article className={`project passive-project ${it[0]==='动补插件训练'?'contain-project':''}`} key={it[0]}>{content}</article>
           : <button className={`project ${it[0].includes('宝藏家乡')?'treasure-project':''}`} key={it[0]} onClick={()=>setSelected(it)}>{content}</button>
@@ -403,13 +428,13 @@ function Works(){
         {selected[7]?<section className="series-output">{selected[7].map((episode,episodeIndex)=><article className="series-episode" key={episode.title}>
           <header><small>PART {String(episodeIndex+1).padStart(2,'0')}</small><h4>{episode.title}</h4></header>
           <figure className="series-main-video"><video src={`./${episode.video}`} poster={`${A}${episode.poster}`} controls playsInline preload="metadata"/></figure>
-          <div className="series-clips"><div><small>SELECTED MOTION OUTPUTS</small><h5>动态片段</h5></div><div className="gif-grid">{episode.clips.map((clip,i)=><video key={clip} src={`./${clip}`} aria-label={`${episode.title} 动态片段 ${i+1}`} muted autoPlay loop playsInline preload="auto" onCanPlay={e=>e.currentTarget.play().catch(()=>{})}/>)}</div></div>
-        </article>)}</section>:group.id==='twoD'&&selected[5]?.length>0&&<section className="gif-output"><div><small>SELECTED MOTION OUTPUTS</small><h4>动态片段</h4></div><div className="gif-grid">{selected[5].map((clip,i)=><video key={clip} src={`./${clip}`} aria-label={`${selected[0]} 动态片段 ${i+1}`} muted autoPlay loop playsInline preload="auto" onCanPlay={e=>e.currentTarget.play().catch(()=>{})}/>)}</div></section>}
+          <div className="series-clips"><div><small>SELECTED MOTION OUTPUTS</small><h5>动态片段</h5></div><div className="gif-grid">{episode.clips.map((clip,i)=><LazyLoopVideo key={clip} src={`./${clip}`} ariaLabel={`${episode.title} 动态片段 ${i+1}`}/>)}</div></div>
+        </article>)}</section>:group.id==='twoD'&&selected[5]?.length>0&&<section className="gif-output"><div><small>SELECTED MOTION OUTPUTS</small><h4>动态片段</h4></div><div className="gif-grid">{selected[5].map((clip,i)=><LazyLoopVideo key={clip} src={`./${clip}`} ariaLabel={`${selected[0]} 动态片段 ${i+1}`}/>)}</div></section>}
         {group.id==='threeD'&&<section className="storyboard-output"><div className="storyboard-heading"><small>STORYBOARD FRAMES</small><h4>分镜单图</h4></div><div className="storyboard-grid">
           {selected[5].map((frame,i)=><button className="storyboard-frame" key={frame} onClick={()=>setExpandedFrame({src:frame,index:i,title:selected[0]})} aria-label={`放大查看 ${selected[0]} 分镜 ${i+1}`}><img src={`./${frame}`} alt={`${selected[0]} 分镜 ${i+1}`}/><span>{String(i+1).padStart(2,'0')}</span></button>)}
-          {selected[6]&&<figure className="storyboard-motion"><video src={`./${selected[6]}`} aria-label={`${selected[0]} POP 故事版`} muted autoPlay loop playsInline preload="auto" onCanPlay={e=>e.currentTarget.play().catch(()=>{})}/><span>POP STORYBOARD</span></figure>}
+          {selected[6]&&<figure className="storyboard-motion"><LazyLoopVideo src={`./${selected[6]}`} ariaLabel={`${selected[0]} POP 故事版`}/><span>POP STORYBOARD</span></figure>}
         </div></section>}
-        <nav><button disabled={selectedIndex<=0} onClick={()=>setSelected(group.items[selectedIndex-1])}>← PREVIOUS</button><button disabled={selectedIndex>=group.items.length-1} onClick={()=>setSelected(group.items[selectedIndex+1])}>NEXT →</button></nav>
+        <nav><button disabled={selectedIndex<=0} onClick={()=>setSelected(group.items[selectedIndex-1])}><ArrowIcon direction="left"/> PREVIOUS</button><button disabled={selectedIndex>=group.items.length-1} onClick={()=>setSelected(group.items[selectedIndex+1])}>NEXT <ArrowIcon direction="right"/></button></nav>
       </div>
       {expandedFrame&&<div className="frame-lightbox" role="dialog" aria-modal="true" aria-label="分镜大图预览" onClick={()=>setExpandedFrame(null)}>
         <button onClick={()=>setExpandedFrame(null)}>CLOSE ×</button>
@@ -421,17 +446,17 @@ function Works(){
 
 function Cavalry(){ return <section id="cavalry" className="section cavalry"><SectionTitle index="03" en="CAVALRY LAB" cn="软件练习"/>
   <div className="lab-intro"><span>GENERATIVE TYPE / PROCEDURAL MOTION / 2026</span></div>
-  <div className="lab-grid">{cavalry.map(([name,file],i)=><figure key={file}><video src={A+'cavalry/'+file} muted loop playsInline autoPlay preload="metadata"/><figcaption><b>{name}</b><span>{String(i+1).padStart(2,'0')} / CAVALRY</span></figcaption></figure>)}</div>
+  <div className="lab-grid">{cavalry.map(([name,file],i)=><figure key={file}><LazyLoopVideo src={A+'cavalry/'+file} ariaLabel={name}/><figcaption><b>{name}</b><span>{String(i+1).padStart(2,'0')} / CAVALRY</span></figcaption></figure>)}</div>
   </section> }
 
 function About(){return <section id="about" className="section about"><SectionTitle index="04" en="WORK EXPERIENCE" cn="个人履历"/>
   <div className="about-top">
-    <figure className="portrait"><img src={A+'portrait.png'} alt="个人形象"/></figure>
+    <figure className="portrait"><img src={A+'portrait.webp'} alt="个人形象" loading="lazy" decoding="async"/></figure>
     <div className="bio"><small>ABOUT ME</small><h3>1800线设计女工</h3><p>7年商业项目经验，专注动态设计、视频设计与二维动画。参与从创意、分镜到后期整合的完整流程，让每个镜头表达得更准确。</p>
-      <div className="facts"><div><span>工作经历</span><b>北京华韬文化传媒</b><small className="fact-detail">动态设计师&nbsp;&nbsp;｜&nbsp;&nbsp;2019–2020 / 导演 / 项目经理&nbsp;&nbsp;｜&nbsp;&nbsp;2020–至今</small></div><div><span>服务品牌</span><b>快手 / 京东 / 小米 / 361° / 特步 / 微软小冰 / 人民日报 / 艾美特 /</b></div><div><span>软件能力</span><b>AE / AI / Cavalry（学习中）/ Ps / Pr</b></div><div><span>毕业院校</span><b>郑州轻工业 · 数媒专业</b></div><div><span>手机</span><a href="tel:15935755356">159 3575 5356</a></div><div><span>邮箱</span><a href="mailto:3072497615@qq.com">3072497615@qq.com</a></div></div>
+      <div className="facts"><div><span>工作经历</span><b>北京华韬文化传媒</b><small className="fact-detail">动态设计师&nbsp;&nbsp;｜&nbsp;&nbsp;2019–2022 /&nbsp;&nbsp;导演 / 项目经理&nbsp;&nbsp;｜&nbsp;&nbsp;2022–至今</small></div><div><span>服务品牌</span><b>快手 / 京东 / 小米 / 361° / 特步 / 微软小冰 / 人民日报 / 艾美特 /</b></div><div><span>软件能力</span><b>AE / AI / Cavalry（学习中）/ Ps / Pr</b></div><div><span>毕业院校</span><b>郑州轻工业 · 数媒专业</b></div><div><span>手机</span><a href="tel:15935755356">159 3575 5356</a></div><div><span>邮箱</span><a href="mailto:3072497615@qq.com">3072497615@qq.com</a></div></div>
     </div>
   </div>
-  <footer><a className="back" href="#top">BACK TO TOP ↑</a></footer>
+  <footer><a className="back" href="#top">BACK TO TOP <ArrowIcon direction="top"/></a></footer>
   </section>}
 
 function useScrollReveal(){
@@ -481,3 +506,4 @@ function useScrollReveal(){
 function App(){useScrollReveal();return <><main><Header/><Hero/><Showreel/><Works/><Cavalry/><About/></main></>}
 
 createRoot(document.getElementById('root')).render(<App/>)
+
